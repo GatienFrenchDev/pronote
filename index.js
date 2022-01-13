@@ -26,7 +26,6 @@ app.listen(port, () =>{
 
 app.get('/', async (req, res) =>{
     const liste = await main()
-    console.log(liste)
     res.render(`${__dirname}/public/index.ejs`, {
         affaires : liste
     })
@@ -71,9 +70,11 @@ async function main(){
 
     let fdp = []
 
-    console.log('requete en cours à pronote')
+    console.log('================================')
+    console.log('-- requete en cours à pronote --')
     const events = await ical.async.fromURL(url)
-    console.log('fin de la requete')
+    console.log('-- fin de la requete --')
+    console.log('================================')
     for (const [key, value] of Object.entries(events)) {
         if(key.includes('Cours')){
             let date = value['start'].toString()
@@ -89,22 +90,3 @@ async function main(){
     }
     return fdp    
 }
-
-
-
-
-// REQUETE EN GET
-// https.get(url, (res) =>{
-//     let data = ''
-
-//     res.on('data', (chunk) =>{
-//         data += chunk
-//     })
-
-//     res.on('end', () =>{
-//         calendrier = JSON.stringify(data)
-//         fs.writeFile('res.txt', calendrier, () =>{
-            
-//         })
-//     })
-// })
