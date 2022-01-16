@@ -2,37 +2,41 @@ const https = require('https')
 const fs = require('fs')
 const ical = require('node-ical')
 
+const { Webhook } = require('discord-webhook-node')
+
 const { parse } = require('dotenv')
 require('dotenv').config()
 
-const ejs = require('ejs')
+// const ejs = require('ejs')
 
-const express = require('express')
+// const express = require('express')
 
-const app = express()
+// const app = express()
 
-app.set('view engine', 'ejs')
+// app.set('view engine', 'ejs')
 
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
+// app.use(express.json())
 
-app.use('/', express.static(__dirname + '/public/'))  
+// app.use('/', express.static(__dirname + '/public/'))  
 
-port = 80
+// port = 80
 
-app.listen(port, () =>{
-    console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
-})
+// app.listen(port, () =>{
+//     console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
+// })
 
-app.get('/', async (req, res) =>{
-    const liste = await main()
-    res.render(`${__dirname}/public/index.ejs`, {
-        matin : liste['matin'],
-        apres_midi : liste['apres_midi']
-    })
-})
+// app.get('/', async (req, res) =>{
+//     const liste = await main()
+//     res.render(`${__dirname}/public/index.ejs`, {
+//         matin : liste['matin'],
+//         apres_midi : liste['apres_midi']
+//     })
+// })
 
+// variables .env
 const url = process.env.URL
+const webhook_url = process.env.WEBHOOK
 
 const date = new Date()
 const jour = date.getDate()+1
@@ -65,6 +69,15 @@ const convert_mois = {
     12:'Dec',
 }
 
+async function envoieDiscord(){
+    const liste = await main()
+    const message = `Bonjour <@482590876028370966> 👋,\nVoici les affaires qu'il te faut pour la journée 🎒:\n\n__Affaires pour la **matinée**__ :\n-${liste['matin'].join('\n-')}\n\n__Affaires pour l'**après midi**__ :\n-${liste['apres_midi'].join('\n-')}.\n\nPassse une bonne journée !`
+    const hook = new Webhook(webhook_url)
+    hook.setUsername('Que mettre dans son sac ?')
+    hook.send(message)
+}
+
+envoieDiscord()
 
 const full2 = `${convert_mois[mois]} ${jour.toString()}`
 
