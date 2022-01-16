@@ -16,3 +16,13 @@ li{
     font-size: 30px;
     margin-left: 50px;
 }
+
+div.main{
+    margin-left: 40px;
+}
+
+p.titre{
+    color: white;
+    font-family: sans-serif;
+    font-size: 50px;
+}

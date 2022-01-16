@@ -8,11 +8,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h2>📚 Que mettre dans son sac demain ?</h2>
-    <ul>
-        <% for (var i = 0; i < affaires.length; i++) { %>
-            <li> <%= affaires[i] %> </li>
-        <% } %>
-    </ul>
+    <div class="main">
+        <h2>📚 Que mettre dans son sac demain ?</h2>
+        <p class="titre">Matinée :</p>
+        <ul>
+            <% for (var i = 0; i < matin.length; i++) { %>
+                <li> <%= matin[i] %> </li>
+            <% } %>
+        </ul>
+        <p class="titre">Apres midi :</p>
+        <ul>
+            <% for (var i = 0; i < apres_midi.length; i++) { %>
+                <li> <%= apres_midi[i] %> </li>
+            <% } %>
+        </ul>
+    </div>
 </body>
 </html>

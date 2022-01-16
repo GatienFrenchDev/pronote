@@ -27,7 +27,8 @@ app.listen(port, () =>{
 app.get('/', async (req, res) =>{
     const liste = await main()
     res.render(`${__dirname}/public/index.ejs`, {
-        affaires : liste
+        matin : liste['matin'],
+        apres_midi : liste['apres_midi']
     })
 })
 
@@ -40,8 +41,9 @@ const annee = date.getFullYear()
 
 const affaires = {
     'FRANCAIS':'Classeur de Francais',
+    'ANGLAIS':'Pochette rouge d\'anglais',
     'ALLEMAND':'Cahier d\'Allemand et Cahier de vocabulaire',
-    'MATHEMATIQUES':'Cahier d\'Allemand et Cahier de vocabulaire',
+    'MATHEMATIQUES':'Cahier de mathématiques',
     'ALLEMAND':'Cahier d\'Allemand et Cahier de vocabulaire',
     'JOUVELOT':'Pochette jaune d\'enseignement scientifique',
     'HISTOIRE':'Cahier d\'Histoire',
@@ -68,7 +70,8 @@ const full2 = `${convert_mois[mois]} ${jour.toString()}`
 
 async function main(){
 
-    let fdp = []
+    let matin = []
+    let apres_midi = []
 
     console.log('================================')
     console.log('-- requete en cours à pronote --')
@@ -81,12 +84,23 @@ async function main(){
             if(date.includes(full2)){
                 let matiere = value['summary']['val']
                 for (const [_key, _value] of Object.entries(affaires)){
+                    if(matiere.includes('ANNUL')){
+                        break
+                    }
                     if(matiere.includes(_key)){
-                        fdp.push(_value)
+                        if(value['start'].getHours()<13){
+                            matin.push(_value)
+                        }
+                        else{
+                            apres_midi.push(_value)
+                        }
                     }
                 }
             }
         }
     }
-    return fdp    
+    return {
+        'matin':matin, 
+        'apres_midi':apres_midi
+    }
 }
