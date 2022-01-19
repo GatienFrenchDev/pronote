@@ -23,7 +23,7 @@ const app = express()
 
 // app.use('/', express.static(__dirname + '/public/'))  
 
-port = 80
+port = process.env.PORT || 80
 
 app.listen(port, () =>{
     console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
