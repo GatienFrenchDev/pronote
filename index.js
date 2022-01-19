@@ -1,10 +1,13 @@
-const https = require('https')
+// const https = require('https')
 const fs = require('fs')
 const ical = require('node-ical')
+
+const https = require('follow-redirects').https
 
 const { Webhook } = require('discord-webhook-node')
 
 const { parse } = require('dotenv')
+const { mainModule } = require('process')
 require('dotenv').config()
 
 // const ejs = require('ejs')
@@ -37,6 +40,7 @@ require('dotenv').config()
 // variables .env
 const url = process.env.URL
 const webhook_url = process.env.WEBHOOK
+const num_tel = process.env.TEL
 
 const date = new Date()
 const jour = date.getDate()+1
@@ -69,6 +73,7 @@ const convert_mois = {
     12:'Dec',
 }
 
+// pour envoyer notifs discord
 async function envoieDiscord(){
     const liste = await main()
     const message = `Bonjour <@482590876028370966> 👋,\nVoici les affaires qu'il te faut pour la journée 🎒:\n\n__Affaires pour la **matinée**__ :\n-${liste['matin'].join('\n-')}\n\n__Affaires pour l'**après midi**__ :\n-${liste['apres_midi'].join('\n-')}.\n\nPassse une bonne journée !`
@@ -77,7 +82,45 @@ async function envoieDiscord(){
     hook.send(message)
 }
 
-envoieDiscord()
+
+// pour envoyer sms
+
+async function sendSMS(){
+
+    const liste = await main()
+
+    var options = {
+        'method': 'POST',
+        'hostname': 'wpxmpy.api.infobip.com',
+        'path': '/sms/2/text/advanced',
+        'headers': {
+            'Authorization': `App ${process.env.API_KEY}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        'maxRedirects': 20
+    }
+
+    let postData = JSON.stringify({"messages":[{"from":"Bot Affaires sac","destinations":[{"to":process.env.TEL}],"text":`Bonjour Gatien 👋,\nVoici les affaires qu'il te faut pour la journée 🎒:\n\nAffaires pour la matinée :\n-${liste['matin'].join('\n-')}\n\nAffaires pour l'après midi :\n-${liste['apres_midi'].join('\n-')}.\n\n:]`}]})
+
+    var req = https.request(options, function (res) {
+        var chunks = []
+        res.on("data", function (chunk) {
+            chunks.push(chunk)
+        })
+        res.on("end", function (chunk) {
+            var body = Buffer.concat(chunks)
+            console.log(body.toString())
+        })
+        res.on("error", function (error) {
+            console.error(error)
+        })
+    })
+
+    req.write(postData)
+    
+    req.end()
+}
 
 const full2 = `${convert_mois[mois]} ${jour.toString()}`
 
@@ -117,3 +160,6 @@ async function main(){
         'apres_midi':apres_midi
     }
 }
+
+
+sendSMS()
