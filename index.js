@@ -10,11 +10,11 @@ const { parse } = require('dotenv')
 const { mainModule } = require('process')
 require('dotenv').config()
 
+const express = require('express')
+
+const app = express()
+
 // const ejs = require('ejs')
-
-// const express = require('express')
-
-// const app = express()
 
 // app.set('view engine', 'ejs')
 
@@ -23,19 +23,16 @@ require('dotenv').config()
 
 // app.use('/', express.static(__dirname + '/public/'))  
 
-// port = 80
+port = 80
 
-// app.listen(port, () =>{
-//     console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
-// })
+app.listen(port, () =>{
+    console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
+})
 
-// app.get('/', async (req, res) =>{
-//     const liste = await main()
-//     res.render(`${__dirname}/public/index.ejs`, {
-//         matin : liste['matin'],
-//         apres_midi : liste['apres_midi']
-//     })
-// })
+app.get('/', async (req, res) =>{
+    await sendSMS()
+    res.send(202)
+})
 
 // variables .env
 const url = process.env.URL
