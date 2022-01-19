@@ -157,6 +157,3 @@ async function main(){
         'apres_midi':apres_midi
     }
 }
-
-
-sendSMS()
