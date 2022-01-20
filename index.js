@@ -39,10 +39,6 @@ const url = process.env.URL
 const webhook_url = process.env.WEBHOOK
 const num_tel = process.env.TEL
 
-const date = new Date()
-const jour = date.getDate()+1
-const mois = date.getMonth()+1
-const annee = date.getFullYear()
 
 const affaires = {
     'FRANCAIS':'Classeur de Francais',
@@ -119,9 +115,14 @@ async function sendSMS(){
     req.end()
 }
 
-const full2 = `${convert_mois[mois]} ${jour.toString()}`
-
 async function main(){
+
+    const date = new Date()
+    const jour = date.getDate()+1
+    const mois = date.getMonth()+1
+    const annee = date.getFullYear()
+    
+    const full2 = `${convert_mois[mois]} ${jour.toString()}`
 
     let matin = []
     let apres_midi = []
