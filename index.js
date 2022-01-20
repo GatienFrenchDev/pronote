@@ -31,7 +31,7 @@ app.listen(port, () =>{
 
 app.get('/', async (req, res) =>{
     await sendSMS()
-    res.send(202)
+    res.send(200)
 })
 
 // variables .env
@@ -121,7 +121,7 @@ async function main(){
     const jour = date.getDate()+1
     const mois = date.getMonth()+1
     const annee = date.getFullYear()
-    
+
     const full2 = `${convert_mois[mois]} ${jour.toString()}`
 
     let matin = []
@@ -138,16 +138,15 @@ async function main(){
             if(date.includes(full2)){
                 let matiere = value['summary']['val']
                 for (const [_key, _value] of Object.entries(affaires)){
-                    if(matiere.includes('ANNUL')){
-                        break
-                    }
-                    if(matiere.includes(_key)){
-                        if(value['start'].getHours()<13){
-                            matin.push(_value)
-                        }
-                        else{
-                            apres_midi.push(_value)
-                        }
+                    if(!matiere.includes('ANNUL')){
+                        if(matiere.includes(_key)){
+                            if(value['start'].getHours()<12){
+                                matin.push(_value)
+                            }
+                            else{
+                                apres_midi.push(_value)
+                            }
+                        }   
                     }
                 }
             }
