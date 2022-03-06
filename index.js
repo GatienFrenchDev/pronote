@@ -25,13 +25,14 @@ const app = express()
 
 port = process.env.PORT || 80
 
-app.listen(port, () =>{
+
+app.listen(port, () => {
     console.log(`Démarrage du superbe site http://127.0.0.1:${port}`)
 })
 
-app.get('/', async (req, res) =>{
+app.get('/', async (req, res) => {
     await sendSMS()
-    res.send(200)
+    res.sendStatus(200)
 })
 
 // variables .env
@@ -41,33 +42,33 @@ const num_tel = process.env.TEL
 
 
 const affaires = {
-    'FRANCAIS':'Classeur de Francais',
-    'ANGLAIS':'Pochette rouge d\'anglais',
-    'ALLEMAND':'Cahier d\'Allemand et Cahier de vocabulaire',
-    'MATHEMATIQUES':'Cahier de mathématiques',
-    'ALLEMAND':'Cahier d\'Allemand et Cahier de vocabulaire',
-    'JOUVELOT':'Pochette jaune d\'enseignement scientifique',
-    'HISTOIRE':'Cahier d\'Histoire',
-    'PHYSIQUE':'Lutin noir de Physique',
+    'FRANCAIS': 'Classeur de Francais',
+    'ANGLAIS': 'Pochette rouge d\'anglais',
+    'ALLEMAND': 'Cahier d\'Allemand et Cahier de vocabulaire',
+    'MATHEMATIQUES': 'Cahier de mathématiques',
+    'ALLEMAND': 'Cahier d\'Allemand et Cahier de vocabulaire',
+    'JOUVELOT': 'Pochette jaune d\'enseignement scientifique',
+    'HISTOIRE': 'Cahier d\'Histoire',
+    'PHYSIQUE': 'Lutin noir de Physique',
 }
 
 const convert_mois = {
-    1:'Jan',
-    2:'Feb',
-    3:'Mar',
-    4:'Apr',
-    5:'May',
-    6:'Jun',
-    7:'Jul',
-    8:'Aug',
-    9:'Sep',
-    10:'Oct',
-    11:'Nov',
-    12:'Dec',
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec',
 }
 
 // pour envoyer notifs discord
-async function envoieDiscord(){
+async function envoieDiscord() {
     const liste = await main()
     const message = `Bonjour <@482590876028370966> 👋,\nVoici les affaires qu'il te faut pour la journée 🎒:\n\n__Affaires pour la **matinée**__ :\n-${liste['matin'].join('\n-')}\n\n__Affaires pour l'**après midi**__ :\n-${liste['apres_midi'].join('\n-')}.\n\nPassse une bonne journée !`
     const hook = new Webhook(webhook_url)
@@ -78,7 +79,7 @@ async function envoieDiscord(){
 
 // pour envoyer sms
 
-async function sendSMS(){
+async function sendSMS() {
 
     const liste = await main()
 
@@ -115,14 +116,17 @@ async function sendSMS(){
     req.end()
 }
 
-async function main(){
+async function main() {
 
-    const date = new Date()
-    const jour = date.getDate()+1
-    const mois = date.getMonth()+1
-    const annee = date.getFullYear()
+    const date_actuelle = new Date()
+    const jour = date_actuelle.getDate() + 1
+    const mois = date_actuelle.getMonth() + 1
+    const annee = date_actuelle.getFullYear()
 
     const full2 = `${convert_mois[mois]} ${jour.toString()}`
+
+    const date_lendemain = new Date()
+    date_lendemain.setDate(date_lendemain.getDate() + 1)
 
     let matin = []
     let apres_midi = []
@@ -132,28 +136,31 @@ async function main(){
     const events = await ical.async.fromURL(url)
     console.log('-- fin de la requete --')
     console.log('================================')
-    for (const [key, value] of Object.entries(events)) {
-        if(key.includes('Cours')){
-            let date = value['start'].toString()
-            if(date.includes(full2)){
+    for (const [key, value] of Object.entries(events)) { // pour chaque event de l'EDT
+        if (key.includes('Cours')) { // si c'est un cours
+            let date = value['start'] // recupère la date de début du cours
+            if (date.getDate() == date_lendemain.getDate() && date.getMonth() == date_lendemain.getMonth() && date.getFullYear() == date_lendemain.getFullYear()) { // regarde si le cours tombe le même jour que celui de demain
                 let matiere = value['summary']['val']
-                for (const [_key, _value] of Object.entries(affaires)){
-                    if(!matiere.includes('ANNUL')){
-                        if(matiere.includes(_key)){
-                            if(value['start'].getHours()<12){
+                for (const [_key, _value] of Object.entries(affaires)) {
+                    if (!matiere.includes('ANNUL') || !matiere.includes('ABSEN')) { // vérifie que le prof ne soit pas absent
+                        if (matiere.includes(_key)) {
+                            if (value['start'].getHours() < 12) {
                                 matin.push(_value)
                             }
-                            else{
+                            else {
                                 apres_midi.push(_value)
                             }
-                        }   
+                        }
                     }
                 }
             }
         }
     }
     return {
-        'matin':matin, 
-        'apres_midi':apres_midi
+        'matin': matin,
+        'apres_midi': apres_midi
     }
 }
+
+
+sendSMS()
