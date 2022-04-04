@@ -144,7 +144,7 @@ async function main() {
                 for (const [_key, _value] of Object.entries(affaires)) {
                     if (!matiere.includes('ANNUL') || !matiere.includes('ABSEN')) { // vérifie que le prof ne soit pas absent
                         if (matiere.includes(_key)) {
-                            if (value['start'].getHours() < 12) {
+                            if (value['start'].getHours()+1 < 12) {
                                 matin.push(_value)
                             }
                             else {
